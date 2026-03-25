@@ -17,7 +17,7 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
     - name: Install libsodium and libczmq
-      run: sudo apt-get install -y libsodium-dev libczmq-dev
+      run: sudo apt-get update && sudo apt-get install -y libsodium-dev libczmq-dev
     - name: Install dependencies
       run: bundle install
     - name: Run tests
