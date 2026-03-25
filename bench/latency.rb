@@ -2,7 +2,7 @@
 
 $VERBOSE = nil
 
-require_relative '../lib/omq-curve'
+require_relative '../lib/omq/curve'
 require 'async'
 require 'benchmark/ips'
 require 'console'

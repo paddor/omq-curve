@@ -3,7 +3,7 @@
 $VERBOSE = nil # suppress IO::Buffer experimental warnings
 
 require "minitest/autorun"
-require "omq-curve"
+require "omq/curve"
 require "async"
 
 require "console"

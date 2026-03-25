@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require_relative "lib/omq/curve/version"
+
 Gem::Specification.new do |s|
   s.name     = "omq-curve"
-  s.version  = "0.1.0"
+  s.version  = OMQ::Curve::VERSION
   s.authors  = ["Patrik Wenger"]
   s.email    = ["paddor@gmail.com"]
   s.summary  = "CurveZMQ (RFC 26) encryption for OMQ"

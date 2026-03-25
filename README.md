@@ -25,7 +25,7 @@ gem 'omq-curve'
 ## Quick Start
 
 ```ruby
-require 'omq-curve'
+require 'omq/curve'
 require 'async'
 
 # Generate keypairs (once, store securely)
@@ -67,7 +67,7 @@ end
 Keys are 32-byte Curve25519 keypairs. Generate them with rbnacl:
 
 ```ruby
-require 'omq-curve'
+require 'omq/curve'
 
 key = RbNaCl::PrivateKey.generate
 
