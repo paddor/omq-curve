@@ -134,7 +134,12 @@ module OMQ
           short_nonce = nonce.byteslice(16, 8)
 
           msg_body = "\x07MESSAGE".b + short_nonce + ciphertext
-          Codec::Frame.new(msg_body).to_wire
+          size     = msg_body.bytesize
+          if size > 255
+            "\x02".b + [size].pack("Q>") + msg_body
+          else
+            "\x00".b + size.chr.b + msg_body
+          end
         end
 
         # Decrypts a CurveZMQ MESSAGE command into a Frame.

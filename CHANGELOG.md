@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.2 — 2026-03-26
+
+### Improved
+
+- Inline frame wire encoding in encrypt, bypassing `Frame.new.to_wire`
+  and its `IO::Buffer` allocation — especially helps larger messages
+  (4KB TCP: +87% vs v0.2.0)
+
 ## 0.2.1 — 2026-03-26
 
 ### Improved
