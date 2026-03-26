@@ -8,12 +8,12 @@ require 'benchmark/ips'
 require 'console'
 Console.logger = Console::Logger.new(Console::Output::Null.new)
 
-server_secret = RbNaCl::PrivateKey.generate
-server_pub    = server_secret.public_key.to_s
-server_sec    = server_secret.to_s
-client_secret = RbNaCl::PrivateKey.generate
-client_pub    = client_secret.public_key.to_s
-client_sec    = client_secret.to_s
+server_key = RbNaCl::PrivateKey.generate
+server_pub = server_key.public_key.to_s
+server_sec = server_key.to_s
+client_key = RbNaCl::PrivateKey.generate
+client_pub = client_key.public_key.to_s
+client_sec = client_key.to_s
 
 MSG_SIZES  = [64, 256, 1024, 4096]
 TRANSPORTS = {
@@ -33,19 +33,12 @@ TRANSPORTS.each do |transport, addr_fn|
     addr    = addr_fn.call("#{transport}_#{size}")
 
     Async do
-      pull = OMQ::PULL.new
-      pull.mechanism        = :curve
-      pull.curve_server     = true
-      pull.curve_public_key = server_pub
-      pull.curve_secret_key = server_sec
+      pull           = OMQ::PULL.new
+      pull.mechanism = OMQ::Curve.server(server_pub, server_sec)
       pull.bind(addr)
 
-      push = OMQ::PUSH.new
-      push.mechanism        = :curve
-      push.curve_server     = false
-      push.curve_public_key = client_pub
-      push.curve_secret_key = client_sec
-      push.curve_server_key = server_pub
+      push           = OMQ::PUSH.new
+      push.mechanism = OMQ::Curve.client(client_pub, client_sec, server_key: server_pub)
       push.connect(addr)
 
       # Warm up
