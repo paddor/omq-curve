@@ -143,11 +143,16 @@ module OMQ
         # @return [Codec::Frame] decrypted frame with flags and body
         # @raise [ProtocolError] on decryption failure or nonce replay
         #
-        def decrypt(frame)
-          cmd = Codec::Command.from_body(frame.body)
-          raise ProtocolError, "expected MESSAGE command, got #{cmd.name}" unless cmd.name == "MESSAGE"
+        MESSAGE_PREFIX = "\x07MESSAGE".b.freeze
+        MESSAGE_PREFIX_SIZE = MESSAGE_PREFIX.bytesize  # 8
 
-          data = cmd.data
+        def decrypt(frame)
+          body = frame.body
+          unless body.start_with?(MESSAGE_PREFIX)
+            raise ProtocolError, "expected MESSAGE command"
+          end
+
+          data = body.byteslice(MESSAGE_PREFIX_SIZE..)
           raise ProtocolError, "MESSAGE too short" if data.bytesize < 8 + BOX_OVERHEAD
 
           short_nonce = data.byteslice(0, 8)
