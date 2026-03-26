@@ -4,7 +4,7 @@ require_relative "lib/omq/curve/version"
 
 Gem::Specification.new do |s|
   s.name     = "omq-curve"
-  s.version  = OMQ_CURVE_VERSION
+  s.version  = OMQ::CURVE_VERSION
   s.authors  = ["Patrik Wenger"]
   s.email    = ["paddor@gmail.com"]
   s.summary  = "CurveZMQ (RFC 26) encryption for OMQ"

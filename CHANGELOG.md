@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.3 — 2026-03-26
+
+### Changed
+
+- Move version constant from `OMQ_CURVE_VERSION` to `OMQ::CURVE_VERSION`
+  (also available as `OMQ::Curve::VERSION`)
+
 ## 0.2.2 — 2026-03-26
 
 ### Improved
