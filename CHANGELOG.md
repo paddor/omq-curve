@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1 — 2026-03-26
+
+### Improved
+
+- 15–55% throughput improvement by bypassing `Command.from_body` in the
+  MESSAGE decrypt hot path — parses the prefix directly via `byteslice`
+  instead of allocating an `IO::Buffer`
+
 ## 0.2.0 — 2026-03-26
 
 ### Changed
