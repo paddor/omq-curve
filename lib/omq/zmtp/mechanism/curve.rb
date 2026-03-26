@@ -40,13 +40,35 @@ module OMQ
         # Maximum nonce value (2^64 - 1). Exceeding this would reuse nonces.
         MAX_NONCE = (2**64) - 1
 
+        # Creates a CURVE server mechanism.
+        #
+        # @param public_key [String] server's permanent public key (32 bytes)
+        # @param secret_key [String] server's permanent secret key (32 bytes)
+        # @param authenticator [#include?, #call, nil] client key authenticator.
+        #   Set/Array → checked via #include?. Proc/lambda → called with the 32-byte
+        #   client public key, must return truthy to allow. nil → allow all.
+        # @return [Curve]
+        #
+        def self.server(public_key, secret_key, authenticator: nil)
+          new(public_key:, secret_key:, as_server: true, authenticator:)
+        end
+
+        # Creates a CURVE client mechanism.
+        #
+        # @param public_key [String] our permanent public key (32 bytes)
+        # @param secret_key [String] our permanent secret key (32 bytes)
+        # @param server_key [String] server's permanent public key (32 bytes)
+        # @return [Curve]
+        #
+        def self.client(public_key, secret_key, server_key:)
+          new(public_key:, secret_key:, server_key:, as_server: false)
+        end
+
         # @param public_key [String] our permanent public key (32 bytes)
         # @param secret_key [String] our permanent secret key (32 bytes)
         # @param as_server [Boolean] whether we are the CURVE server
         # @param server_key [String, nil] server's permanent public key (32 bytes, required for clients)
-        # @param authenticator [#include?, #call, nil] client key authenticator (server only).
-        #   Set/Array → checked via #include?. Proc/lambda → called with the 32-byte
-        #   client public key, must return truthy to allow. nil → allow all.
+        # @param authenticator [#include?, #call, nil] client key authenticator (server only)
         #
         def initialize(server_key: nil, public_key:, secret_key:, as_server: false, authenticator: nil)
           validate_key!(public_key, "public_key")

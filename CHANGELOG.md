@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.0 — 2026-03-26
+
+### Changed
+
+- New API: `OMQ::Curve.server(pub, sec)` and `OMQ::Curve.client(pub, sec, server_key: k)`
+  replace verbose per-socket options (`curve_server`, `curve_public_key`, etc.)
+- `OMQ::Curve` is a convenience alias for `OMQ::ZMTP::Mechanism::Curve`
+- Requires omq ~> 0.2
+
+### Added
+
+- `omq-keygen` executable for Z85 keypair generation
+- `examples/reqrep/` with encrypted server/client scripts
+
 ## 0.1.0 — 2026-03-25
 
 Initial release. CurveZMQ (RFC 26) encryption for OMQ.

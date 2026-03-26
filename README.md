@@ -39,11 +39,8 @@ client_key = RbNaCl::PrivateKey.generate
 
 Async do |task|
   # --- Server ---
-  rep = OMQ::REP.new
-  rep.mechanism        = :curve
-  rep.curve_server     = true
-  rep.curve_public_key = server_key.public_key.to_s
-  rep.curve_secret_key = server_key.to_s
+  rep           = OMQ::REP.new
+  rep.mechanism = OMQ::Curve.server(server_key.public_key.to_s, server_key.to_s)
   rep.bind('tcp://*:5555')
 
   task.async do
@@ -52,11 +49,9 @@ Async do |task|
   end
 
   # --- Client ---
-  req = OMQ::REQ.new
-  req.mechanism        = :curve
-  req.curve_server_key = server_key.public_key.to_s  # must know server's public key
-  req.curve_public_key = client_key.public_key.to_s
-  req.curve_secret_key = client_key.to_s
+  req           = OMQ::REQ.new
+  req.mechanism = OMQ::Curve.client(client_key.public_key.to_s, client_key.to_s,
+                                    server_key: server_key.public_key.to_s)
   req.connect('tcp://localhost:5555')
 
   req << 'hello'
@@ -126,26 +121,18 @@ binary = OMQ::Z85.decode(z85)      # => 32-byte binary string
 
 Z85 keys are compatible with libzmq's `zmq_curve_keypair()` output and tools like `curve_keygen`.
 
-## Socket Options
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `mechanism` | `:null`, `:curve` | Security mechanism (default `:null`) |
-| `curve_server` | Boolean | `true` for the CURVE server side |
-| `curve_public_key` | String (32 bytes) | Our permanent public key |
-| `curve_secret_key` | String (32 bytes) | Our permanent secret key |
-| `curve_server_key` | String (32 bytes) | Server's public key (clients only) |
-| `curve_authenticator` | Set, `#call`, nil | Client key authenticator (server only, see below) |
-
-Set options before `bind`/`connect`:
+## API
 
 ```ruby
-sock = OMQ::REP.new
-sock.mechanism        = :curve
-sock.curve_server     = true
-sock.curve_public_key = public_key
-sock.curve_secret_key = secret_key
+# Server — pass our keypair
+sock           = OMQ::REP.new
+sock.mechanism = OMQ::Curve.server(public_key, secret_key)
 sock.bind('tcp://*:5555')
+
+# Client — pass our keypair + server's public key
+sock           = OMQ::REQ.new
+sock.mechanism = OMQ::Curve.client(public_key, secret_key, server_key: server_pub)
+sock.connect('tcp://localhost:5555')
 ```
 
 ## Client vs Server
@@ -159,16 +146,12 @@ Any socket type can be either the CURVE server or client:
 
 ```ruby
 # ROUTER as CURVE server (typical)
-router = OMQ::ROUTER.new
-router.mechanism    = :curve
-router.curve_server = true
-# ...
+router           = OMQ::ROUTER.new
+router.mechanism = OMQ::Curve.server(public_key, secret_key)
 
 # PUB as CURVE server
-pub = OMQ::PUB.new
-pub.mechanism    = :curve
-pub.curve_server = true
-# ...
+pub           = OMQ::PUB.new
+pub.mechanism = OMQ::Curve.server(public_key, secret_key)
 ```
 
 ## Authentication
@@ -180,12 +163,8 @@ By default, any client that knows the server's public key can connect. Use `curv
 ```ruby
 allowed = Set[client1_pub, client2_pub]
 
-rep = OMQ::REP.new
-rep.mechanism           = :curve
-rep.curve_server        = true
-rep.curve_public_key    = server_pub
-rep.curve_secret_key    = server_sec
-rep.curve_authenticator = allowed
+rep           = OMQ::REP.new
+rep.mechanism = OMQ::Curve.server(server_pub, server_sec, authenticator: allowed)
 rep.bind('tcp://*:5555')
 ```
 
@@ -196,10 +175,10 @@ Unauthorized clients are disconnected during the handshake — no READY is sent 
 For dynamic lookups, logging, or rate limiting, pass anything that responds to `#call`:
 
 ```ruby
-rep.curve_authenticator = ->(client_public_key) {
+rep.mechanism = OMQ::Curve.server(server_pub, server_sec, authenticator: ->(client_public_key) {
   # client_public_key is a 32-byte binary string
   db_lookup(client_public_key) || false
-}
+})
 ```
 
 Return truthy to allow, falsy to reject. The authenticator runs during the CURVE handshake (after vouch verification, before READY), so rejected clients never reach the application layer.
@@ -210,7 +189,7 @@ Return truthy to allow, falsy to reject. The authenticator runs during the CURVE
 allowed = Set.new(
   Dir['keys/clients/*.pub'].map { |f| OMQ::Z85.decode(File.read(f)) }
 )
-rep.curve_authenticator = allowed
+rep.mechanism = OMQ::Curve.server(server_pub, server_sec, authenticator: allowed)
 ```
 
 ### Note on ZAP
@@ -286,4 +265,4 @@ Properties:
 
 ## License
 
-[ISC](../LICENSE)
+[ISC](LICENSE)

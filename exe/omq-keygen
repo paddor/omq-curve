@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "omq/curve"
+
+label = ARGV[0]
+
+key    = RbNaCl::PrivateKey.generate
+public = OMQ::Z85.encode(key.public_key.to_s)
+secret = OMQ::Z85.encode(key.to_s)
+
+if label
+  puts "#{label}_public=#{public}"
+  puts "#{label}_secret=#{secret}"
+else
+  puts "public=#{public}"
+  puts "secret=#{secret}"
+end

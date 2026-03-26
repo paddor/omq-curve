@@ -193,21 +193,13 @@ describe "CURVE encryption" do
 
       Async do |task|
         rep = OMQ::REP.new
-        rep.mechanism       = :curve
-        rep.curve_server    = true
-        rep.curve_public_key = server_pub
-        rep.curve_secret_key = server_sec
-        rep.curve_server_key = server_pub
+        rep.mechanism = OMQ::Curve.server(server_pub, server_sec)
         rep.bind("tcp://127.0.0.1:0")
 
         port = rep.last_tcp_port
 
         req = OMQ::REQ.new
-        req.mechanism       = :curve
-        req.curve_server    = false
-        req.curve_public_key = client_pub
-        req.curve_secret_key = client_sec
-        req.curve_server_key = server_pub
+        req.mechanism = OMQ::Curve.client(client_pub, client_sec, server_key: server_pub)
         req.connect("tcp://127.0.0.1:#{port}")
 
         task.async do
@@ -231,19 +223,11 @@ describe "CURVE encryption" do
 
       Async do |task|
         pub = OMQ::PUB.new
-        pub.mechanism       = :curve
-        pub.curve_server    = true
-        pub.curve_public_key = server_pub
-        pub.curve_secret_key = server_sec
-        pub.curve_server_key = server_pub
+        pub.mechanism = OMQ::Curve.server(server_pub, server_sec)
         pub.bind(addr)
 
         sub = OMQ::SUB.new
-        sub.mechanism       = :curve
-        sub.curve_server    = false
-        sub.curve_public_key = client_pub
-        sub.curve_secret_key = client_sec
-        sub.curve_server_key = server_pub
+        sub.mechanism = OMQ::Curve.client(client_pub, client_sec, server_key: server_pub)
         sub.connect(addr)
         sub.subscribe("")
 
@@ -267,11 +251,7 @@ describe "CURVE encryption" do
 
       Async do |task|
         rep = OMQ::REP.new
-        rep.mechanism           = :curve
-        rep.curve_server        = true
-        rep.curve_public_key    = server_pub
-        rep.curve_secret_key    = server_sec
-        rep.curve_authenticator = Set[client_pub]
+        rep.mechanism = OMQ::Curve.server(server_pub, server_sec, authenticator: Set[client_pub])
         rep.bind("tcp://127.0.0.1:0")
         port = rep.last_tcp_port
 
@@ -281,11 +261,7 @@ describe "CURVE encryption" do
         end
 
         req = OMQ::REQ.new
-        req.mechanism        = :curve
-        req.curve_server     = false
-        req.curve_public_key = client_pub
-        req.curve_secret_key = client_sec
-        req.curve_server_key = server_pub
+        req.mechanism = OMQ::Curve.client(client_pub, client_sec, server_key: server_pub)
         req.connect("tcp://127.0.0.1:#{port}")
 
         req << "authenticated"
@@ -304,20 +280,12 @@ describe "CURVE encryption" do
 
       Async do |task|
         rep = OMQ::REP.new
-        rep.mechanism           = :curve
-        rep.curve_server        = true
-        rep.curve_public_key    = server_pub
-        rep.curve_secret_key    = server_sec
-        rep.curve_authenticator = Set[other_pub]  # only other_pub is allowed
+        rep.mechanism = OMQ::Curve.server(server_pub, server_sec, authenticator: Set[other_pub])
         rep.bind("tcp://127.0.0.1:0")
         port = rep.last_tcp_port
 
         req = OMQ::REQ.new
-        req.mechanism        = :curve
-        req.curve_server     = false
-        req.curve_public_key = client_pub
-        req.curve_secret_key = client_sec
-        req.curve_server_key = server_pub
+        req.mechanism = OMQ::Curve.client(client_pub, client_sec, server_key: server_pub)
         req.recv_timeout     = 1
         req.send_timeout     = 1
         req.connect("tcp://127.0.0.1:#{port}")
@@ -338,14 +306,10 @@ describe "CURVE encryption" do
 
       Async do |task|
         rep = OMQ::REP.new
-        rep.mechanism           = :curve
-        rep.curve_server        = true
-        rep.curve_public_key    = server_pub
-        rep.curve_secret_key    = server_sec
-        rep.curve_authenticator = ->(key) {
+        rep.mechanism = OMQ::Curve.server(server_pub, server_sec, authenticator: ->(key) {
           authenticated_keys << key
           true
-        }
+        })
         rep.bind("tcp://127.0.0.1:0")
         port = rep.last_tcp_port
 
@@ -355,11 +319,7 @@ describe "CURVE encryption" do
         end
 
         req = OMQ::REQ.new
-        req.mechanism        = :curve
-        req.curve_server     = false
-        req.curve_public_key = client_pub
-        req.curve_secret_key = client_sec
-        req.curve_server_key = server_pub
+        req.mechanism = OMQ::Curve.client(client_pub, client_sec, server_key: server_pub)
         req.connect("tcp://127.0.0.1:#{port}")
 
         req << "hello"
@@ -378,20 +338,12 @@ describe "CURVE encryption" do
 
       Async do |task|
         rep = OMQ::REP.new
-        rep.mechanism           = :curve
-        rep.curve_server        = true
-        rep.curve_public_key    = server_pub
-        rep.curve_secret_key    = server_sec
-        rep.curve_authenticator = ->(_key) { false }
+        rep.mechanism = OMQ::Curve.server(server_pub, server_sec, authenticator: ->(_key) { false })
         rep.bind("tcp://127.0.0.1:0")
         port = rep.last_tcp_port
 
         req = OMQ::REQ.new
-        req.mechanism        = :curve
-        req.curve_server     = false
-        req.curve_public_key = client_pub
-        req.curve_secret_key = client_sec
-        req.curve_server_key = server_pub
+        req.mechanism = OMQ::Curve.client(client_pub, client_sec, server_key: server_pub)
         req.recv_timeout     = 1
         req.send_timeout     = 1
         req.connect("tcp://127.0.0.1:#{port}")
@@ -566,10 +518,7 @@ describe "CURVE encryption" do
 
       Async do |task|
         rep = OMQ::REP.new
-        rep.mechanism        = :curve
-        rep.curve_server     = true
-        rep.curve_public_key = server_pub
-        rep.curve_secret_key = server_sec
+        rep.mechanism = OMQ::Curve.server(server_pub, server_sec)
         rep.bind("tcp://127.0.0.1:0")
         port = rep.last_tcp_port
 
@@ -581,17 +530,11 @@ describe "CURVE encryption" do
         end
 
         req1 = OMQ::REQ.new
-        req1.mechanism        = :curve
-        req1.curve_public_key = client1_pub
-        req1.curve_secret_key = client1_sec
-        req1.curve_server_key = server_pub
+        req1.mechanism = OMQ::Curve.client(client1_pub, client1_sec, server_key: server_pub)
         req1.connect("tcp://127.0.0.1:#{port}")
 
         req2 = OMQ::REQ.new
-        req2.mechanism        = :curve
-        req2.curve_public_key = client2_pub
-        req2.curve_secret_key = client2_sec
-        req2.curve_server_key = server_pub
+        req2.mechanism = OMQ::Curve.client(client2_pub, client2_sec, server_key: server_pub)
         req2.connect("tcp://127.0.0.1:#{port}")
 
         req1 << "from client 1"
@@ -612,10 +555,7 @@ describe "CURVE encryption" do
 
       Async do |task|
         rep = OMQ::REP.new
-        rep.mechanism        = :curve
-        rep.curve_server     = true
-        rep.curve_public_key = server_pub
-        rep.curve_secret_key = server_sec
+        rep.mechanism = OMQ::Curve.server(server_pub, server_sec)
         rep.bind("tcp://127.0.0.1:0")
         port = rep.last_tcp_port
 
@@ -625,10 +565,7 @@ describe "CURVE encryption" do
         end
 
         req = OMQ::REQ.new
-        req.mechanism           = :curve
-        req.curve_public_key    = client_pub
-        req.curve_secret_key    = client_sec
-        req.curve_server_key    = server_pub
+        req.mechanism = OMQ::Curve.client(client_pub, client_sec, server_key: server_pub)
         req.reconnect_interval  = 0.1
         req.connect("tcp://127.0.0.1:#{port}")
 
@@ -640,10 +577,7 @@ describe "CURVE encryption" do
 
         # Restart server on same port
         rep2 = OMQ::REP.new
-        rep2.mechanism        = :curve
-        rep2.curve_server     = true
-        rep2.curve_public_key = server_pub
-        rep2.curve_secret_key = server_sec
+        rep2.mechanism = OMQ::Curve.server(server_pub, server_sec)
         rep2.bind("tcp://127.0.0.1:#{port}")
 
         task.async do

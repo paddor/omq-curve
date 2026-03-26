@@ -26,11 +26,7 @@ describe "CURVE interop with CZTop/libzmq" do
 
       Async do
         req = OMQ::REQ.new
-        req.mechanism        = :curve
-        req.curve_server     = false
-        req.curve_public_key = client_pub
-        req.curve_secret_key = client_sec
-        req.curve_server_key = server_pub
+        req.mechanism = OMQ::Curve.client(client_pub, client_sec, server_key: server_pub)
         req.connect("tcp://127.0.0.1:#{port}")
 
         req << "hello from omq"
@@ -52,10 +48,7 @@ describe "CURVE interop with CZTop/libzmq" do
 
       Async do |task|
         rep = OMQ::REP.new
-        rep.mechanism        = :curve
-        rep.curve_server     = true
-        rep.curve_public_key = server_pub
-        rep.curve_secret_key = server_sec
+        rep.mechanism = OMQ::Curve.server(server_pub, server_sec)
         rep.bind("tcp://127.0.0.1:0")
         port = rep.last_tcp_port
 
@@ -107,11 +100,7 @@ describe "CURVE interop with CZTop/libzmq" do
 
       Async do
         dealer = OMQ::DEALER.new
-        dealer.mechanism        = :curve
-        dealer.curve_server     = false
-        dealer.curve_public_key = client_pub
-        dealer.curve_secret_key = client_sec
-        dealer.curve_server_key = server_pub
+        dealer.mechanism = OMQ::Curve.client(client_pub, client_sec, server_key: server_pub)
         dealer.connect("tcp://127.0.0.1:#{port}")
 
         dealer << ["", "hello from dealer"]
@@ -133,10 +122,7 @@ describe "CURVE interop with CZTop/libzmq" do
 
       Async do |task|
         router = OMQ::ROUTER.new
-        router.mechanism        = :curve
-        router.curve_server     = true
-        router.curve_public_key = server_pub
-        router.curve_secret_key = server_sec
+        router.mechanism = OMQ::Curve.server(server_pub, server_sec)
         router.bind("tcp://127.0.0.1:0")
         port = router.last_tcp_port
 
@@ -179,11 +165,7 @@ describe "CURVE interop with CZTop/libzmq" do
 
       Async do |task|
         rep = OMQ::REP.new
-        rep.mechanism           = :curve
-        rep.curve_server        = true
-        rep.curve_public_key    = server_pub
-        rep.curve_secret_key    = server_sec
-        rep.curve_authenticator = Set[allowed_pub]  # client_pub NOT in set
+        rep.mechanism = OMQ::Curve.server(server_pub, server_sec, authenticator: Set[allowed_pub])
         rep.bind("tcp://127.0.0.1:0")
         port = rep.last_tcp_port
 

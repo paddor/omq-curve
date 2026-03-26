@@ -4,6 +4,7 @@ source "https://rubygems.org"
 
 gemspec
 
+gem "omq", path: "../omq" if ENV["DEV_ENV"]
 gem "async"
 gem "minitest"
 gem "rake"
