@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.summary  = "CurveZMQ (RFC 26) encryption for OMQ"
   s.description = "Adds CURVE security (Curve25519 encryption and authentication) " \
                   "to OMQ sockets. Requires libsodium via rbnacl."
-  s.homepage = "https://github.com/paddor/omq-curve"
+  s.homepage = "https://github.com/zeromq/omq-curve"
   s.license  = "ISC"
 
   s.required_ruby_version = ">= 3.3"

@@ -1,11 +1,11 @@
 # OMQ-CURVE
 
-[![CI](https://github.com/paddor/omq-curve/actions/workflows/ci.yml/badge.svg)](https://github.com/paddor/omq-curve/actions/workflows/ci.yml)
+[![CI](https://github.com/zeromq/omq-curve/actions/workflows/ci.yml/badge.svg)](https://github.com/zeromq/omq-curve/actions/workflows/ci.yml)
 [![Gem Version](https://img.shields.io/gem/v/omq-curve?color=e9573f)](https://rubygems.org/gems/omq-curve)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](LICENSE)
 [![Ruby](https://img.shields.io/badge/Ruby-%3E%3D%203.3-CC342D?logo=ruby&logoColor=white)](https://www.ruby-lang.org)
 
-CurveZMQ ([RFC 26](https://rfc.zeromq.org/spec/26/)) encryption for [OMQ](https://github.com/paddor/omq). Adds Curve25519 authenticated encryption to any OMQ socket over tcp or ipc.
+CurveZMQ ([RFC 26](https://rfc.zeromq.org/spec/26/)) encryption for [OMQ](https://github.com/zeromq/omq). Adds Curve25519 authenticated encryption to any OMQ socket over tcp or ipc.
 
 Interoperates with libzmq, CZMQ, pyzmq, and any other ZMTP 3.1 peer that speaks CURVE.
 
