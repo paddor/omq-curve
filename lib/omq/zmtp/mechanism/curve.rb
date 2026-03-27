@@ -194,6 +194,7 @@ module OMQ
 
           # --- Exchange greetings ---
           io.write(Codec::Greeting.encode(mechanism: MECHANISM_NAME, as_server: false))
+          io.flush
           peer_greeting = Codec::Greeting.decode(io.read_exactly(Codec::Greeting::SIZE))
           unless peer_greeting[:mechanism] == MECHANISM_NAME
             raise ProtocolError, "expected CURVE mechanism, got #{peer_greeting[:mechanism]}"
@@ -214,6 +215,7 @@ module OMQ
           hello << signature          # 80 bytes (64 + 16 MAC)
 
           io.write(Codec::Frame.new(hello, command: true).to_wire)
+          io.flush
 
           # --- Read WELCOME ---
           welcome_frame = Codec::Frame.read_from(io)
@@ -272,6 +274,7 @@ module OMQ
           initiate << init_ciphertext
 
           io.write(Codec::Frame.new(initiate, command: true).to_wire)
+          io.flush
 
           # --- Read READY ---
           ready_frame = Codec::Frame.read_from(io)
@@ -310,6 +313,7 @@ module OMQ
         def server_handshake!(io, socket_type:, identity:)
           # --- Exchange greetings ---
           io.write(Codec::Greeting.encode(mechanism: MECHANISM_NAME, as_server: true))
+          io.flush
           peer_greeting = Codec::Greeting.decode(io.read_exactly(Codec::Greeting::SIZE))
           unless peer_greeting[:mechanism] == MECHANISM_NAME
             raise ProtocolError, "expected CURVE mechanism, got #{peer_greeting[:mechanism]}"
@@ -361,6 +365,7 @@ module OMQ
           welcome << w_ciphertext    # 128 + 16 = 144 bytes
 
           io.write(Codec::Frame.new(welcome, command: true).to_wire)
+          io.flush
 
           # --- Read INITIATE ---
           # Server recovers cn_public and sn_secret from the cookie below.
@@ -457,6 +462,7 @@ module OMQ
           ready << r_ciphertext
 
           io.write(Codec::Frame.new(ready, command: true).to_wire)
+          io.flush
 
           props = Codec::Command.decode_properties(metadata_bytes)
 

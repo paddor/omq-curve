@@ -12,7 +12,7 @@ describe "CURVE encryption" do
   end
 
   def make_socketpair
-    UNIXSocket.pair.map { |s| IO::Stream::Buffered.wrap(s, minimum_write_size: 0) }
+    UNIXSocket.pair.map { |s| IO::Stream::Buffered.wrap(s) }
   end
 
   describe "Connection-level handshake" do
@@ -438,6 +438,7 @@ describe "CURVE encryption" do
 
         # Replay the same wire bytes (same nonce)
         original_write.call(captured)
+        client_io.flush
 
         # Server should reject the replayed frame
         assert_raises(OMQ::ZMTP::ProtocolError) do

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.4 — 2026-03-27
+
+### Fixed
+
+- CURVE handshake deadlocks with buffered IO — missing `io.flush` after
+  greeting, HELLO, INITIATE (client) and greeting, WELCOME, READY
+  (server) writes caused both peers to block on read
+- Tests used `minimum_write_size: 0` which bypassed IO buffering entirely,
+  masking the flush bug
+
 ## 0.2.3 — 2026-03-26
 
 ### Changed
