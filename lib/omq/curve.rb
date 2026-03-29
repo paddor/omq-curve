@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
-require "omq"
+if ENV["OMQ_DEV"]
+  require_relative "../../../omq/lib/omq"
+else
+  require "omq"
+end
 require "rbnacl"
 
 require_relative "curve/version"
