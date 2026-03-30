@@ -1,12 +1,14 @@
 # Changelog
 
-## 0.2.4 — 2026-03-30
+## 0.2.5 — 2026-03-30
 
 ### Changed
 
 - **`OMQ_DEV` env var** — `require "omq"` replaced with `require_relative`
   when `OMQ_DEV` is set, loading the sibling omq source tree instead of the
   installed gem. Gemfile uses the same var (replaces `DEV_ENV`).
+
+## 0.2.4 — 2026-03-27
 
 ### Fixed
 
